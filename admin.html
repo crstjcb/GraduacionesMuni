@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Administración | Graduación 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="cloud.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <header class="hero"><div class="shell"><div class="logo-line"><img class="logo" src="logomunicipal.png" alt="Logo municipal"></div><div class="admin-heading"><div class="admin-header"><div><p class="hero-tag">Panel de administración</p><h1 class="display">Graduación 2026</h1><p class="intro">Gestioná las fotografías por horario y los momentos destacados por separado.</p></div><a class="btn outline" href="index.html">Ver página pública ↗</a></div></div></div><div class="bar"></div></header>
+  <main class="shell admin-main">
+    <section id="login-panel" class="panel login-panel" aria-labelledby="login-heading">
+      <div class="login-icon" aria-hidden="true">🔒</div>
+      <p class="eyebrow">Acceso privado</p>
+      <h2 id="login-heading" class="display">Administración</h2>
+      <p class="muted">Ingresá la contraseña para gestionar las fotografías de Graduación 2026.</p>
+      <form id="login-form" class="login-form">
+        <label for="admin-password">Contraseña</label>
+        <input id="admin-password" type="password" required autocomplete="current-password" placeholder="Contraseña de administración" />
+        <button class="btn full" id="login-button" type="submit">Entrar a Administración</button>
+      </form>
+      <p id="login-status" class="muted" role="status" aria-live="polite"></p>
+    </section>
+    <div id="admin-app" class="hidden">
+      <div class="admin-session-bar"><span>Panel privado · Municipalidad de Chinautla</span><button class="btn outline small" id="logout" type="button">Cerrar sesión</button></div>
+    <div class="admin-layout">
+      <aside class="panel"><p class="eyebrow">Secciones</p><h2 class="display">Seleccioná una</h2><div class="time-nav" id="time-nav"></div></aside>
+      <div class="admin-content">
+        <div class="panel"><p class="eyebrow">Administrar sección</p><h2 class="display" id="selected-title">8:00 a. m.</h2><p class="muted">Las fotos se guardan dentro de la sección seleccionada. Para abanderados y reconocimientos, elegí Momentos destacados.</p>
+          <div class="upload-zone" id="drop-zone"><div style="font-size:42px">⇧</div><h3>Subir fotos</h3><p class="muted">Arrastrá imágenes aquí o elegí una carpeta completa.</p>
+            <div class="upload-actions"><button class="btn" id="pick-files" type="button">Seleccionar fotos</button><button class="btn outline" id="pick-folder" type="button">Seleccionar carpeta</button></div>
+            <input type="file" id="files-input" accept="image/*" multiple>
+            <input type="file" id="folder-input" accept="image/*" multiple webkitdirectory directory>
+          </div>
+          <p id="upload-message" class="muted note" role="status"></p><div id="upload-progress" class="progress hidden"><span id="upload-progress-fill" style="width:0%"></span></div>
+        </div>
+        <div class="panel"><div class="toolbar"><div><p class="eyebrow">Fotografías cargadas</p><h2 class="display" id="photos-title">8:00 a. m.</h2><p class="muted" id="photo-count">0 fotografías</p></div><div class="photo-toolbar-actions"><button class="btn small" id="open-rename" type="button">✎ Renombrar fotos</button><button class="btn outline small" id="reload" type="button">Actualizar</button></div></div>
+          <div style="display:flex;justify-content:center;gap:12px;margin:16px 0"><button id="admin-prev" class="btn small" type="button">← Anteriores</button><button id="admin-next" class="btn small" type="button">Siguientes →</button></div>
+      <div id="admin-photos" class="admin-photos"></div><div id="admin-empty" class="empty">Todavía no hay fotografías en esta sección.</div>
+        </div>
+        <section class="panel hidden" id="rename-panel" aria-labelledby="rename-title">
+          <div class="toolbar"><div><p class="eyebrow">Edición masiva</p><h2 id="rename-title" class="display">Renombrar fotografías</h2><p class="muted" id="rename-subtitle">Cambiá los nombres sin volver a subir las fotos.</p></div><button class="btn outline small" id="close-rename" type="button">Cerrar</button></div>
+          <div class="rename-controls">
+            <label>Fotografías que querés cambiar
+              <select id="rename-scope"><option value="recent">Últimas fotos subidas</option><option value="all">Todas las fotos de esta sección</option></select>
+            </label>
+            <label>Nombre base (opcional)
+              <input id="rename-base" type="text" maxlength="90" placeholder="Ej.: Graduación 8 AM">
+            </label>
+            <button class="btn outline" id="apply-rename-base" type="button">Aplicar numeración</button>
+          </div>
+          <p class="muted">Ejemplo: Graduación 8 AM 001.jpg, Graduación 8 AM 002.jpg… También podés cambiar cada nombre antes de guardar. Se conserva el formato original.</p>
+          <div class="rename-list" id="rename-list"></div>
+          <div class="rename-footer"><span class="muted" id="rename-count">0 fotografías</span><button class="btn" id="save-renames" type="button">Guardar todos los nombres</button></div>
+          <p class="muted" role="status" id="rename-message"></p>
+        </section>
+        <div class="danger-zone"><h3>Eliminar todas las fotografías de esta sección</h3><p class="muted">Esta acción borra solamente las imágenes de <strong id="danger-title">8:00 a. m.</strong>. No modifica las fotografías de las demás secciones.</p><button id="delete-section" class="btn red" type="button">Eliminar todas las fotos de esta sección</button></div>
+        <div class="panel legacy-panel">
+          <h3>Recuperar fotos de la versión anterior</h3>
+          <p class="muted">Si antes subiste fotos desde este mismo navegador y dirección (por ejemplo localhost:5500), podés copiarlas a Supabase. No se borran los archivos anteriores.</p>
+          <button id="migrate-legacy" class="btn outline" type="button">Importar fotos antiguas del navegador</button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+  <footer class="footer">Municipalidad de Chinautla | Administración de Graduación 2026</footer>
+  <div id="confirm-overlay" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title"><div class="modal"><p class="eyebrow">Confirmación de seguridad</p><h2 id="confirm-title" class="display">Eliminar sección</h2><p class="muted" id="confirm-description"></p><label for="confirm-input">Escribí ELIMINAR para confirmar:</label><input id="confirm-input" autocomplete="off" placeholder="ELIMINAR"><div class="modal-actions"><button class="btn outline" id="cancel-delete" type="button">Cancelar</button><button class="btn red" id="confirm-delete" type="button" disabled>Eliminar fotos</button></div></div></div>
+</body>
+</html>
